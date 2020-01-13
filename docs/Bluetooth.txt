@@ -1,0 +1,45 @@
+Device Name: Flare RT
+- Service UUID: 71261000-3692-ae93-e711-472ba41689c9
+  - 71261001-3692-ae93-e711-472ba41689c9
+    Handle: 23 
+    Value: 00 Off
+           01 Day Steady
+           05 Night Steady
+           07 Day Flash
+           08 All Day Flash
+           3F Night Flash
+
+Device Name: ION PRO RT
+id = "BluetoothLE#BluetoothLE84:fd:d1:67:a5:c4-ee:8e:d6:9b:13:d8"
+
+- Service UUID: 0000180F-0000-1000-8000-00805F9B34FB (Battery)
+  - 00002a19-0000-1000-8000-00805f9b34fb
+    Handle: 19
+
+- Service UUID: 71261000-3692-ae93-e711-472ba41689c9
+  - 71261001-3692-ae93-e711-472ba41689c9 
+    Handle: 23*
+    User Description: Mode
+    Value: 00 Off
+           01 High
+           02 Medium
+           05 Low
+           3E Night Flash
+           3F Day Flash
+  - 71261200-3692-ae93-e711-472ba41689c9 
+    Handle: 39
+    User Description: Temperature
+                                                           
+- Service UUID: 71262000-3692-ae93-e711-472ba41689c9
+  - 71262100-3692-ae93-e711-472ba41689c9
+    Handle: 44*
+    Descriptor Name: ClientCharacteristicConfiguration
+  - 71262101-3692-ae93-e711-472ba41689c9
+    Handle: 49*
+    Descriptor Name: ClientCharacteristicConfiguration
+
+
+
+Temperature calibration
+22.9 C = 0FE2
+22.2 C = 0FDC

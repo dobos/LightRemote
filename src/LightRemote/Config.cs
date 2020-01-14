@@ -12,10 +12,10 @@ namespace LightRemote
     [XmlRoot("config")]
     public class Config
     {
-        private Dictionary<string, LightModel> lights;
+        private Dictionary<string, Light> lights;
 
         [XmlArray("lights")]
-        public LightModel[] Lights_forXml
+        public Light[] Lights_forXml
         {
             get
             {
@@ -32,14 +32,14 @@ namespace LightRemote
         }
 
         [XmlIgnore]
-        public Dictionary<string, LightModel> Lights
+        public Dictionary<string, Light> Lights
         {
             get { return lights; }
         }
 
         public Config()
         {
-            this.lights = new Dictionary<string, LightModel>();
+            this.lights = new Dictionary<string, Light>();
         }
     }
 }

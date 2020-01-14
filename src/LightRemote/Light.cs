@@ -8,66 +8,142 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Xml.Serialization;
 
 namespace LightRemote
 {
+    [XmlType("light")]
     public class Light : LightRemoteObject
     {
         private string id;
-        private LightModel model;
         private string name;
+        private List<LightMode> modes;
+        private LightLocation location;
         private bool isConnected;
         private int batteryLevel;
         private double temperature;
         private byte mode;
         private byte requestedMode;
 
+        [XmlIgnore]
+        public string ID
+        {
+            get { return id; }
+        }
+
+        [XmlAttribute("name")]
         public string Name
         {
             get { return name; }
             set
             {
                 name = value;
-                OnNotifyPropertyChanged("Name");
+                OnNotifyPropertyChanged($"{nameof(Name)}");
             }
         }
 
-        public LightModel Model
+        [XmlArray("modes")]
+        public List<LightMode> Modes
         {
-            get { return model; }
-            set { model = value; }
+            get { return modes; }
         }
 
+        [XmlAttribute("location")]
+        public LightLocation Location
+        {
+            get { return location; }
+            set
+            {
+                location = value;
+                OnNotifyPropertyChanged($"{nameof(Location)}");
+            }
+        }
+
+        [XmlIgnore]
         public bool IsConnected
         {
             get { return isConnected; }
         }
 
+        [XmlIgnore]
         public int BatteryLevel
         {
             get { return batteryLevel; }
         }
 
+        [XmlIgnore]
         public bool HasBatteryLevel
         {
             get { return batteryLevel != -1; }
         }
 
+        [XmlIgnore]
+        public string BatteryIconGlyph
+        {
+            get
+            {
+                if (batteryLevel == 0)
+                {
+                    return "\uF5F2";
+                }
+                else if (batteryLevel > 0 && batteryLevel <= 25)
+                {
+                    return "\uF5F5";
+                }
+                else if (batteryLevel > 25 && batteryLevel <= 50)
+                {
+                    return "\uF5F8";
+                }
+                else if (batteryLevel > 50 && batteryLevel <= 75)
+                {
+                    return "\uF5FA";
+                }
+                else if (batteryLevel > 75 && batteryLevel <= 100)
+                {
+                    return "\uF5FC";
+                }
+                else
+                {
+                    return "\uF608";
+                }
+            }
+        }
+
+        [XmlIgnore]
         public double Temperature
         {
             get { return temperature; }
         }
 
+        [XmlIgnore]
         public bool HasTemperature
         {
             get { return !double.IsNaN(temperature); }
         }
 
+        [XmlIgnore]
+        public string TemperatureText
+        {
+            get
+            {
+                if (HasTemperature)
+                {
+                    return String.Format("{0:00.0}°C", temperature);
+                }
+                else
+                {
+                    return String.Empty;
+                }
+            }
+        }
+
+        [XmlIgnore]
         public byte Mode
         {
             get { return mode; }
         }
 
+        [XmlIgnore]
         public byte RequestedMode
         {
             get { return requestedMode; }
@@ -88,7 +164,8 @@ namespace LightRemote
         {
             this.id = null;
             this.name = null;
-            this.model = null;
+            this.modes = new List<LightMode>();
+            this.location = LightLocation.Front;
             this.isConnected = false;
             this.batteryLevel = -1;
             this.temperature = double.NaN;
@@ -100,7 +177,8 @@ namespace LightRemote
         {
             this.id = null;
             this.name = other.name;
-            this.model = other.model;
+            this.modes = new List<LightMode>(other.modes.Select(x => new LightMode(x, this)));
+            this.location = other.location;
             this.isConnected = other.isConnected;
             this.batteryLevel = other.batteryLevel;
             this.temperature = other.temperature;
@@ -110,11 +188,9 @@ namespace LightRemote
 
         public static async Task<Light> FromBluetoothDevice(DeviceInformation info)
         {
-            var light = new Light()
+            var light = new Light(LightManager.Instance.Config.Lights[info.Name])
             {
-                id = info.Id,
-                name = info.Name,
-                model = LightManager.Instance.Config.Lights[info.Name],
+                id = info.Id
             };
 
             using (var device = await light.GetBluetoothDevice())
@@ -186,7 +262,7 @@ namespace LightRemote
             {
                 batteryLevel = -1;
             }
-            OnNotifyPropertyChanged("BatteryLevel");
+            OnNotifyPropertyChanged($"{nameof(BatteryLevel)}");
         }
 
         private async Task ReadTemperature(BluetoothLEDevice device)
@@ -194,13 +270,22 @@ namespace LightRemote
             try
             {
                 var buffer = await ReadBluetoothValue(device, Constants.BTLESvcGuidLight, Constants.BTLEChrGuidTemperature);
-                temperature = buffer[3] / 10.0;
+                if (buffer[2] != 0)
+                {
+                    temperature = buffer[3] / 10.0;
+                }
+                else
+                {
+                    temperature = double.NaN;
+                }
             }
             catch (Exception)
             {
                 temperature = double.NaN;
             }
-            OnNotifyPropertyChanged("Temperature");
+            OnNotifyPropertyChanged($"{nameof(Temperature)}");
+            OnNotifyPropertyChanged($"{nameof(HasTemperature)}");
+            OnNotifyPropertyChanged($"{nameof(TemperatureText)}");
         }
 
         private async Task ReadMode(BluetoothLEDevice device)
@@ -213,7 +298,13 @@ namespace LightRemote
             {
                 this.mode = 255;
             }
-            OnNotifyPropertyChanged("Mode");
+
+            foreach (var m in modes)
+            {
+                m.Active = m.ID == this.mode;
+            }
+
+            OnNotifyPropertyChanged($"{nameof(Mode)}");
         }
 
         private async Task WriteMode(BluetoothLEDevice device)
@@ -226,7 +317,13 @@ namespace LightRemote
             {
                 mode = 255;
             }
-            OnNotifyPropertyChanged("Mode");
+
+            foreach (var m in modes)
+            {
+                m.Active = m.ID == this.mode;
+            }
+
+            OnNotifyPropertyChanged($"{nameof(Mode)}");
         }
 
         public async Task TurnOn()
@@ -236,7 +333,7 @@ namespace LightRemote
                 mode = requestedMode;
                 await WriteMode(device);
             }
-            OnNotifyPropertyChanged("Mode");
+            OnNotifyPropertyChanged($"{nameof(Mode)}");
         }
 
         public async Task TurnOff()
@@ -246,7 +343,7 @@ namespace LightRemote
                 mode = 0;
                 await WriteMode(device);
             }
-            OnNotifyPropertyChanged("Mode");
+            OnNotifyPropertyChanged($"{nameof(Mode)}");
         }
     }
 }

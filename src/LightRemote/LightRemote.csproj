@@ -124,7 +124,6 @@
     <Compile Include="Config.cs" />
     <Compile Include="LightLocation.cs" />
     <Compile Include="LightManager.cs" />
-    <Compile Include="LightModel.cs" />
     <Compile Include="LightRemoteObject.cs" />
     <Compile Include="LightTime.cs" />
     <Compile Include="MainPage.xaml.cs">

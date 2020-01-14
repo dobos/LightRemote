@@ -35,7 +35,7 @@ namespace LightRemote
 
         private async void LightOnOffButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = (Button)sender;
+            var button = (FrameworkElement)sender;
             var mode = (LightMode)button.DataContext;
             var model = FindParentDataContext(button);
             var light = (Light)FindParentDataContext(model).DataContext;
@@ -47,7 +47,7 @@ namespace LightRemote
         private async Task RefreshList()
         {
             await LightManager.Instance.FindConnectedLights();
-            lightList.ItemsSource = LightManager.Instance.Lights.Values;
+            lightList.ItemsSource = LightManager.Instance.Lights.Values.OrderBy(x => x.Location);
         }
 
         private FrameworkElement FindParentDataContext(DependencyObject element)

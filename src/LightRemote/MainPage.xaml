@@ -6,42 +6,63 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" FontSize="24">
 
     <Grid>
-        <Grid Height="32" VerticalAlignment="Top">
-            <Image Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" />
-            <Border BorderBrush="{x:Null}" Height="32" VerticalAlignment="Top" Margin="32,0,0,0">
-                <TextBlock Text="Light Remote" TextAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0"/>
+        <Grid Height="48" VerticalAlignment="Top" Background="{ThemeResource SystemControlBackgroundBaseLowBrush}" >
+            <FontIcon Glyph="&#xE754;" Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,8,0,0" />
+            <Border BorderBrush="{x:Null}" Height="44" VerticalAlignment="Top" Margin="48,0,48,0">
+                <TextBlock Text="Light Remote" TextAlignment="Center" VerticalAlignment="Center" Margin="16,0,0,0" FontSize="18"/>
             </Border>
         </Grid>
 
-        <ListView x:Name="lightList" Grid.RowSpan="1" Margin="0,32,0,32"
-                  ItemsSource="Mock" SelectionMode="None">
+        <ListView x:Name="lightList" Grid.RowSpan="1" Margin="0,48,0,48" SelectionMode="None">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="local:Light" >
-                    <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,0,0,0">
-                        <Image Width="32" Height="32" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                        <Border BorderBrush="{x:Null}" Height="32" Margin="32,0,0,0"
-                                VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{Binding Name}" />
-                        </Border>
-                        <GridView x:Name="modeList" ItemsSource="{Binding Model.Modes}" 
-                                 VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="32,32,0,0"
-                                  SelectionMode="None">
-                            <GridView.ItemTemplate>
-                                <DataTemplate x:DataType="local:LightMode">
-                                    <Button Content="{Binding Name}" Click="LightOnOffButton_Click"></Button>
-                                </DataTemplate>
-                            </GridView.ItemTemplate>
-                        </GridView>
-                    </Grid>
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0">
+                        <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,0,0,0">
+                            <TextBlock Text="{Binding Name}" Margin="0,8,0,0" FontFamily="Segoe UI"
+                                       Height="24" VerticalAlignment="Top"/>
+                            <Border BorderBrush="{x:Null}" Width="48" Height="32" Margin="0,44,0,0"
+                                    HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <FontIcon Glyph="{Binding BatteryIconGlyph}" 
+                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                          FontFamily="Segoe MDL2 Assets" FontSize="24" />
+                            </Border>
+                            <Border BorderBrush="{x:Null}" Width="48" Height="32" Margin="0,76,0,0"
+                                    HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <TextBlock Text="{Binding TemperatureText}" FontFamily="Segoe UI" FontSize="12"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                            <GridView x:Name="modeList" ItemsSource="{Binding Modes}" 
+                                 VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="56,36,0,0"
+                                  SelectionMode="None" FontFamily="Segoe MDL2 Assets">
+                                <GridView.ItemTemplate>
+                                    <DataTemplate x:DataType="local:LightMode">
+                                        <AppBarButton Label="{Binding Name}" Click="LightOnOffButton_Click"
+                                                      Width="64" Height="72" Background="{Binding ActiveButtonColor}" FontFamily="Segoe UI">
+                                            <AppBarButton.Icon>
+                                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="{Binding ModeIconGlyph}"/>
+                                            </AppBarButton.Icon>
+                                        </AppBarButton>
+                                    </DataTemplate>
+                                </GridView.ItemTemplate>
+                            </GridView>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="Black" Height="32">
-            <Button x:Name="refreshButton" Content="Refresh" Click="RefreshButton_Click" Background="White"/>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="48">
+
+            <AppBarButton Icon="Refresh" x:Name="refreshButton" Click="RefreshButton_Click" HorizontalAlignment="Center"/>
         </Grid>
 
 

@@ -4,18 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 
 namespace LightRemote
 {
     [XmlType("mode")]
     public class LightMode : LightRemoteObject
     {
-        private Light light;
         private byte id;
+        private Light light;
         private string name;
         private LightTime time;
         private int flash;
         private int brightness;
+        private bool active;
 
         [XmlAttribute("id")]
         public byte ID
@@ -24,8 +27,15 @@ namespace LightRemote
             set
             {
                 id = value;
-                OnNotifyPropertyChanged("ID");
+                OnNotifyPropertyChanged($"{nameof(ID)}");
             }
+        }
+
+        [XmlIgnore]
+        public Light Light
+        {
+            get { return light; }
+            set { light = value; }
         }
 
         [XmlAttribute("name")]
@@ -35,7 +45,7 @@ namespace LightRemote
             set
             {
                 name = value;
-                OnNotifyPropertyChanged("Name");
+                OnNotifyPropertyChanged($"{nameof(Name)}");
             }
         }
 
@@ -46,7 +56,8 @@ namespace LightRemote
             set
             {
                 time = value;
-                OnNotifyPropertyChanged("Time");
+                OnNotifyPropertyChanged($"{nameof(Time)}");
+                OnNotifyPropertyChanged($"{nameof(ModeIconGlyph)}");
             }
         }
 
@@ -57,7 +68,8 @@ namespace LightRemote
             set
             {
                 flash = value;
-                OnNotifyPropertyChanged("Flash");
+                OnNotifyPropertyChanged($"{nameof(Flash)}");
+                OnNotifyPropertyChanged($"{nameof(ModeIconGlyph)}");
             }
         }
 
@@ -68,14 +80,89 @@ namespace LightRemote
             set
             {
                 brightness = value;
-                OnNotifyPropertyChanged("Brightness");
+                OnNotifyPropertyChanged($"{nameof(Brightness)}");
+                OnNotifyPropertyChanged($"{nameof(ModeIconGlyph)}");
+            }
+        }
+
+        [XmlIgnore]
+        public string ModeIconGlyph
+        {
+            get
+            {
+                if (time == LightTime.Off)
+                {
+                    return "\uF13D";
+                }
+                else if (flash > 0)
+                {
+                    return "\uE9A9";
+                }
+                else
+                {
+                    return "\uE9A8";
+                }
+            }
+        }
+
+        [XmlIgnore]
+        public bool Active
+        {
+            get { return active; }
+            set
+            {
+                active = value;
+                OnNotifyPropertyChanged($"{nameof(Active)}");
+                OnNotifyPropertyChanged($"{nameof(ActiveButtonColor)}");
+            }
+        }
+
+        [XmlIgnore]
+        public SolidColorBrush ActiveButtonColor
+        {
+            get
+            {
+                if (active)
+                {
+                    return Application.Current.Resources["ToggleButtonBackgroundChecked"] as SolidColorBrush;
+                }
+                else
+                {
+                    return Application.Current.Resources["ToggleButtonBackground"] as SolidColorBrush;
+                }
             }
         }
 
         public LightMode()
         {
-
+            InitializeMembers();
         }
 
+        public LightMode(LightMode other, Light light)
+        {
+            CopyMembers(other, light);
+        }
+
+        private void InitializeMembers()
+        {
+            this.id = 255;
+            this.light = null;
+            this.name = null;
+            this.time = LightTime.Off;
+            this.flash = 0;
+            this.brightness = 0;
+            this.active = false;
+        }
+
+        private void CopyMembers(LightMode other, Light light)
+        {
+            this.id = other.id;
+            this.light = light;
+            this.name = other.name;
+            this.time = other.time;
+            this.flash = other.flash;
+            this.brightness = other.brightness;
+            this.active = other.active;
+        }
     }
 }

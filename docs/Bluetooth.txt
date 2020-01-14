@@ -41,5 +41,5 @@ id = "BluetoothLE#BluetoothLE84:fd:d1:67:a5:c4-ee:8e:d6:9b:13:d8"
 
 
 Temperature calibration
-22.9 C = 0FE2
-22.2 C = 0FDC
+22.9 C = 0FE2	226
+22.2 C = 0FDC	220

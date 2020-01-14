@@ -31,7 +31,7 @@
                                        Height="24" VerticalAlignment="Top"/>
                             <Border BorderBrush="{x:Null}" Width="48" Height="32" Margin="0,44,0,0"
                                     HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <FontIcon Glyph="{Binding BatteryIconGlyph}" 
+                                <FontIcon Glyph="{Binding BatteryIconGlyph}" Foreground="{Binding BatteryIconColor}"
                                           VerticalAlignment="Center" HorizontalAlignment="Center"
                                           FontFamily="Segoe MDL2 Assets" FontSize="24" />
                             </Border>

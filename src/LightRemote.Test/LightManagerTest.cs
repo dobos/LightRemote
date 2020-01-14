@@ -16,7 +16,10 @@ namespace LightRemote.Test
         [TestMethod]
         public void TestSaveConfig()
         {
-            var l1 = new LightModel("ION PRO RT");
+            var l1 = new Light()
+            {
+                Name = "ION PRO RT"
+            };
             l1.Modes.Add(new LightMode()
             {
                 Name = "Day steady",

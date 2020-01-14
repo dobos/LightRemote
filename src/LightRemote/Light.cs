@@ -7,6 +7,8 @@ using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml.Serialization;
 
@@ -84,27 +86,59 @@ namespace LightRemote
             {
                 if (batteryLevel == 0)
                 {
-                    return "\uF5F2";
+                    return "\uEBA0";    // Empty
                 }
                 else if (batteryLevel > 0 && batteryLevel <= 25)
                 {
-                    return "\uF5F5";
+                    return "\uEBA2";
                 }
                 else if (batteryLevel > 25 && batteryLevel <= 50)
                 {
-                    return "\uF5F8";
+                    return "\uEBA5";
                 }
                 else if (batteryLevel > 50 && batteryLevel <= 75)
                 {
-                    return "\uF5FA";
+                    return "\uEBA8";
                 }
                 else if (batteryLevel > 75 && batteryLevel <= 100)
                 {
-                    return "\uF5FC";
+                    return "\uEBAA";    // Full
                 }
                 else
                 {
-                    return "\uF608";
+                    return "\uEC02";    // N/A
+                }
+            }
+        }
+
+        [XmlIgnore]
+        public SolidColorBrush BatteryIconColor
+        {
+            get
+            {
+                if (batteryLevel == 0)
+                {
+                    return Application.Current.Resources["ToggleButtonBackgroundChecked"] as SolidColorBrush;
+                }
+                else if (batteryLevel > 0 && batteryLevel <= 25)
+                {
+                    return new SolidColorBrush(Windows.UI.Colors.Red);
+                }
+                else if (batteryLevel > 25 && batteryLevel <= 50)
+                {
+                    return new SolidColorBrush(Windows.UI.Colors.Orange);
+                }
+                else if (batteryLevel > 50 && batteryLevel <= 75)
+                {
+                    return new SolidColorBrush(Windows.UI.Colors.Green);
+                }
+                else if (batteryLevel > 75 && batteryLevel <= 100)
+                {
+                    return new SolidColorBrush(Windows.UI.Colors.Green);
+                }
+                else
+                {
+                    return Application.Current.Resources["SystemBaseHighColor"] as SolidColorBrush;
                 }
             }
         }
@@ -263,6 +297,8 @@ namespace LightRemote
                 batteryLevel = -1;
             }
             OnNotifyPropertyChanged($"{nameof(BatteryLevel)}");
+            OnNotifyPropertyChanged($"{nameof(BatteryIconGlyph)}");
+            OnNotifyPropertyChanged($"{nameof(BatteryIconColor)}");
         }
 
         private async Task ReadTemperature(BluetoothLEDevice device)

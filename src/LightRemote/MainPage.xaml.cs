@@ -30,7 +30,15 @@ namespace LightRemote
 
         private async void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
+            progressRing.Visibility = Visibility.Visible;
+            progressRing.IsActive = true;
+            lightList.IsEnabled = false;
+            refreshButton.IsEnabled = false;
             await RefreshList();
+            progressRing.Visibility = Visibility.Collapsed;
+            progressRing.IsActive = false;
+            lightList.IsEnabled = true;
+            refreshButton.IsEnabled = true;
         }
 
         private async void LightOnOffButton_Click(object sender, RoutedEventArgs e)

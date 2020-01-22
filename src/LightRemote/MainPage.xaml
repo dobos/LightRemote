@@ -15,7 +15,7 @@
                 <TextBlock Text="Light Remote" TextAlignment="Center" VerticalAlignment="Center" Margin="16,0,0,0" FontSize="18"/>
             </Border>
         </Grid>
-
+        <ProgressRing x:Name="progressRing" Visibility="Collapsed" Width="100" Height="100"  />
         <ListView x:Name="lightList" Grid.RowSpan="1" Margin="0,48,0,48" SelectionMode="None">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">

@@ -229,7 +229,7 @@ namespace LightRemote
 
             using (var device = await light.GetBluetoothDevice())
             {
-                await light.ReadAllStatus(device);
+                await light.ReadAllStatus(device, BluetoothCacheMode.Uncached);
             }
 
             return light;
@@ -241,13 +241,13 @@ namespace LightRemote
             return await BluetoothLEDevice.FromIdAsync(id);
         }
 
-        private async Task ReadAllStatus(BluetoothLEDevice device)
+        private async Task ReadAllStatus(BluetoothLEDevice device, BluetoothCacheMode cacheMode)
         {
             try
             {
-                await ReadBatteryLevel(device);
-                await ReadTemperature(device);
-                await ReadMode(device);
+                await ReadBatteryLevel(device, cacheMode);
+                await ReadTemperature(device, cacheMode);
+                await ReadMode(device, cacheMode);
 
                 //isConnected = device.ConnectionStatus == BluetoothConnectionStatus.Connected;
                 isConnected = true;
@@ -258,11 +258,11 @@ namespace LightRemote
             }
         }
 
-        private async Task<byte[]> ReadBluetoothValue(BluetoothLEDevice device, Guid svcGuid, Guid chrGuid)
+        private async Task<byte[]> ReadBluetoothValue(BluetoothLEDevice device, Guid svcGuid, Guid chrGuid, BluetoothCacheMode cacheMode)
         {
             var svc = (await device.GetGattServicesForUuidAsync(svcGuid)).Services[0];
             var chr = (await svc.GetCharacteristicsForUuidAsync(chrGuid)).Characteristics[0];
-            return (await chr.ReadValueAsync()).Value.ToArray();
+            return (await chr.ReadValueAsync(cacheMode)).Value.ToArray();
         }
 
         private async Task WriteBluetoothValue(BluetoothLEDevice device, Guid svcGuid, Guid chrGuid, byte[] input)
@@ -272,25 +272,25 @@ namespace LightRemote
             await chr.WriteValueAsync(input.AsBuffer());
         }
 
-        private async Task<byte> ReadBluetoothValueByte(BluetoothLEDevice device, Guid svcGuid, Guid chrGuid)
+        private async Task<byte> ReadBluetoothValueByte(BluetoothLEDevice device, Guid svcGuid, Guid chrGuid, BluetoothCacheMode cacheMode)
         {
-            var input = await ReadBluetoothValue(device, svcGuid, chrGuid);
+            var input = await ReadBluetoothValue(device, svcGuid, chrGuid, cacheMode);
             return input[0];
         }
 
-        private async Task<int> ReadBluetoothValueInt(BluetoothLEDevice device, Guid svcGuid, Guid chrGuid)
+        private async Task<int> ReadBluetoothValueInt(BluetoothLEDevice device, Guid svcGuid, Guid chrGuid, BluetoothCacheMode cacheMode)
         {
-            var buffer = await ReadBluetoothValue(device, svcGuid, chrGuid);
+            var buffer = await ReadBluetoothValue(device, svcGuid, chrGuid, cacheMode);
             int i = 0;
             int value = (buffer[i++] << 24) | (buffer[i++] << 16) | (buffer[i++] << 8) | buffer[i++];
             return value;
         }
 
-        private async Task ReadBatteryLevel(BluetoothLEDevice device)
+        private async Task ReadBatteryLevel(BluetoothLEDevice device, BluetoothCacheMode cacheMode)
         {
             try
             {
-                batteryLevel = await ReadBluetoothValueByte(device, Constants.BTLESvcGuidBattery, Constants.BTLEChrGuidBattery);
+                batteryLevel = await ReadBluetoothValueByte(device, Constants.BTLESvcGuidBattery, Constants.BTLEChrGuidBattery, cacheMode);
             }
             catch (Exception)
             {
@@ -301,11 +301,11 @@ namespace LightRemote
             OnNotifyPropertyChanged($"{nameof(BatteryIconColor)}");
         }
 
-        private async Task ReadTemperature(BluetoothLEDevice device)
+        private async Task ReadTemperature(BluetoothLEDevice device, BluetoothCacheMode cacheMode)
         {
             try
             {
-                var buffer = await ReadBluetoothValue(device, Constants.BTLESvcGuidLight, Constants.BTLEChrGuidTemperature);
+                var buffer = await ReadBluetoothValue(device, Constants.BTLESvcGuidLight, Constants.BTLEChrGuidTemperature, cacheMode);
                 if (buffer[2] != 0)
                 {
                     temperature = buffer[3] / 10.0;
@@ -324,11 +324,11 @@ namespace LightRemote
             OnNotifyPropertyChanged($"{nameof(TemperatureText)}");
         }
 
-        private async Task ReadMode(BluetoothLEDevice device)
+        private async Task ReadMode(BluetoothLEDevice device, BluetoothCacheMode cacheMode)
         {
             try
             {
-                this.mode = await ReadBluetoothValueByte(device, Constants.BTLESvcGuidLight, Constants.BTLEChrGuidMode);
+                this.mode = await ReadBluetoothValueByte(device, Constants.BTLESvcGuidLight, Constants.BTLEChrGuidMode, cacheMode);
             }
             catch (Exception)
             {
